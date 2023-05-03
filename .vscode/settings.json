@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "*.H": "a51",
+        "stc80c51.h": "c"
+    }
+}
