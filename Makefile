@@ -1,2 +1,3 @@
-export BUILD_DIR_ROOT ?= build
-include ./80c51/Makefile
+# export BUILD_DIR_ROOT ?= build
+# export BUILD_DIR_ROOT := ${BUILD_DIR_ROOT}
+include ./80C51/Makefile
