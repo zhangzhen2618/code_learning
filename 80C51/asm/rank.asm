@@ -1,7 +1,8 @@
 .include /asm51.h/
 .area home (abs)
 .area xseg (abs)
-.area pseg (abs)
+.area pseg (abs, data)
+.org 0x0006
 ljmp _main
 .area code (code)
 _Num = 7

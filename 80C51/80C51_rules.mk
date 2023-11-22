@@ -3,7 +3,7 @@ MCU := -mmcs51
 CC := sdcc
 ASM := sdas8051
 INCLUDE_PATH := -I./80C51/include
-FLAGS := ${MCU} ${INCLUDE_PATH}
+FLAGS := ${MCU} ${INCLUDE_PATH} --xram-size 256 --code-size 8192
 ROM_SIZE ?= 8192
 
 TARGET_DIR := ${80C51_BUILD_ROOT_DIR}/${TARGET_FILE_NAME}
@@ -14,7 +14,7 @@ BINARY := ${TARGET_DIR}/${TARGET_FILE_NAME}.bin
 
 all: ${TARGET_DIR} ${IHX} ${HEX} ${BINARY}
 
-ifdef C_FILES
+ifdef C_FILE
 COBJS := $(addprefix ${TARGET_DIR}/, $(patsubst %.c, %.rel, $(notdir ${C_FILE})))
 ${COBJS}: ${C_FILE}
 	${CC} -c ${FLAGS} -o $@ $<
