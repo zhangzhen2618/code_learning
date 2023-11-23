@@ -10,11 +10,21 @@ void delay(unsigned char t){
     }
     
 }
-int main(){
-    P2 = 0xff;
-    delay(2);
-    P2 = 0x00;
-    delay(2);
 
-    return 0;
+unsigned char flag = 0;
+
+int main(){
+    while (1){
+
+        if (P2 == 0){
+            flag = 1;
+        }
+
+        if (P2 == 0xFF){
+            flag = 0;
+        }
+        P2 <<= 1;
+        P2 += flag; 
+        delay(2);
+    }
 }
