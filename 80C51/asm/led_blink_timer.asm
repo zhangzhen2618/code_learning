@@ -1,7 +1,8 @@
 .module led_blink_timer
 
-TIMER_RESET_VALUE = 63542
-TIMER_COUNTER = 500
+TIMER_RESET_VALUE = 63542;1ms delay (65536-11966000/6/1000)
+TIMER_COUNTER = 500; 500 means 500ms
+
 .globl timer_count
 
 .area XSEG (ABS)
