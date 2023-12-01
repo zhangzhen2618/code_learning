@@ -3,6 +3,13 @@
 
 * Here using the [sdcc](https://sdcc.sourceforge.net) to complie, and using the [stcgal](https://github.com/grigorig/stcgal) to upload the code. 
 * You can use the apt to install sdcc and stcgal.
+```
+sudo apt install sdcc stcgal
+```
+* Upload the HEX file to device, the default port device is /dev/ttyCH341USB0, you can use the PORT = /dev/tty**** to change the port device;
+```
+    make upload__xxx [PORT=/dev/tty****]; upload the HEX file to the device
+```
 
 ## Assembly : 
 ```
