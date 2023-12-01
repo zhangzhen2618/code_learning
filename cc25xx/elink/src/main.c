@@ -1,6 +1,7 @@
-#include "mcs51/cc2510fx.h"
-
-int main(){
+#include "screen.h"
 
 
+void main(void){
+	IO_init();
+	loop();
 }
