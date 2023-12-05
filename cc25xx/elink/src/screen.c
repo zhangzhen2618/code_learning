@@ -62,10 +62,10 @@ void loop() {
     
     
     //PICTURE Clean
-     EPD_init(); //EPD init
-    PIC_display_Clean();
-    EPD_refresh();//EPD_refresh   
-    EPD_sleep();//EPD_sleep,Sleep instruction is necessary, please do not delete!!!
+    //  EPD_init(); //EPD init
+    // PIC_display_Clean();
+    // EPD_refresh();//EPD_refresh   
+    // EPD_sleep();//EPD_sleep,Sleep instruction is necessary, please do not delete!!!
     while(1);
 
   

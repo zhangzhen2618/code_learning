@@ -16,8 +16,8 @@ ${asm_targets}: 80C51__asm__% : ./80C51/asm/%.asm
 	
 ${c_targets}: 80C51__c__% : ./80C51/src/%.c
 	@${MAKE} -f ./80C51/80C51_rules.mk 80C51_BUILD_ROOT_DIR=${BUILD_DIR_ROOT}/80C51/c\
-		C_FILE=$< TARGET_FILE_NAME=$(patsubst 80c51__c__%,%,$@)
-	@echo "\nMemory: " & tail -n 5 ${BUILD_DIR_ROOT}/80C51/$(subst __,/,$@)/*.mem
+		C_FILE=$< TARGET_FILE_NAME=$(patsubst 80C51__c__%,%,$@)
+	@echo "\nMemory: " & tail -n 5 ${BUILD_DIR_ROOT}/$(subst __,/,$@)/*.mem
 
 ${clean_targets} : clean_% : 
 	@rm -rf ${BUILD_DIR_ROOT}/$(subst __,/, $(patsubst clean_%,%,$@))

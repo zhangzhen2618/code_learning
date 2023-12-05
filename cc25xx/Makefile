@@ -19,4 +19,4 @@ ${clean_targets}: clean_%:
 
 ${upload_targets}: upload_% : %
 	@echo "Uploading target : ${BUILD_DIR_ROOT}/$(subst __,/,$(patsubst upload_%,%, $@))/$(patsubst upload_cc25xx__%,%, $@).hex"
-	@cc-tool -e -w ${BUILD_DIR_ROOT}/$(subst __,/,$(patsubst upload_%,%, $@))/$(patsubst upload_cc25xx__%,%, $@).hex
+	@sudo cc-tool -f -e -w ${BUILD_DIR_ROOT}/$(subst __,/,$(patsubst upload_%,%, $@))/$(patsubst upload_cc25xx__%,%, $@).hex
