@@ -1,7 +1,9 @@
 #include "uart.h"
+#include "dma.h"
 
 typedef signed   short  int16;
 typedef unsigned short  uint16;
+typedef unsigned char uint8;
 
 // Baudrate = 115200 (U0BAUD.BAUD_M = 34, U0GCR.BAUD_E = 12)
 #define UART_BAUD_M       34
@@ -16,49 +18,35 @@ typedef unsigned short  uint16;
 #define BIT6              0x40
 #define BIT7              0x80
 
-void uart1Send(const char* data, uint16 len);
-uint16 uart1Receive(unsigned char *buf);
+typedef struct {
+    uint8 SRCADDRH;
+    uint8 SRCADDRL;
+    uint8 DESTADDRH;
+    uint8 DESTADDRL;
+    uint8 VLEN : 3;
+    uint8 LENH : 5;
+    uint8 LENL : 8;
+    uint8 WORDSIZE : 1;
+    uint8 TMODE : 2;
+    uint8 TRIG : 5;
+    uint8 SRCINC : 2;
+    uint8 DESTINC : 2;
+    uint8 IRQMASK : 1;
+    uint8 M8 : 1;
+    uint8 PRIORITY : 2;
+} DMA_DESC;
 
+static DMA_DESC __xdata DMA_CH_CONFIG[5];
+
+void uart1_tx_StartDMA( DMA_DESC *dma_config, 
+                    uint8 chan_number,
+                    uint8 *tx_buf,
+                    uint16 buf_size);
 int main(){
 
-    //Set the system clock source to 26Mhz XSOC to support maximum transfer speed,
-    SLEEP &= ~SLEEP_OSC_PD; // Power up the HS RCOSC and XSOC
-    while (!(SLEEP & SLEEP_XOSC_S)); // Waiting the XOSC to stable.
-    CLKCON &= ~(CLKCON_CLKSPD | CLKCON_OSC); // clear the System clock speed setting bit;
-    // CLKCON = (CLKCON & ~(CLKCON_CLKSPD | CLKCON_OSC)) | CLKSPD_DIV_1;
-    // When the CLKCON.OSC bit set to 0, system clock source set to the XOSC
-    CLKCON |= CLKSPD_DIV_1; // The systemc clock div, set to 000, means, system clock is 26Mhz
-    while(CLKCON & CLKCON_OSC); // Waiting to the system clock source from hs RCOSC to the XOSC;
-    SLEEP |= SLEEP_OSC_PD; // Let the system not set by toggle the CLKCON.OSC
+    system_clock_init();
 
-    // !!! Remember change the system clock source, must wait the RCOSC or XOSC to stable;!!!
-    
-    PERCFG &= ~PERCFG_U1CFG; // Configure USART1 for Alternative 1 ==> Port P0  
-    P0SEL |= BIT4 | BIT5; // configure the P0.4, P0.5 as alternative, RX=P0.5, TX=P0.4
-    // P2SEL |= P2SEL_PRI3P1;
-    P2DIR |= P2DIR_PRIP0_1; // P0, USART1 privit
-
-    // P2DIR |= 0x06;
-    // P2_1 = 1;
-    // P2_2 = 1;
-
-    // Configure the baudrate as 115200
-    U1BAUD = UART_BAUD_M;
-    U1GCR &= ~U1GCR_BAUD_E;
-    U1GCR |= UART_BAUD_E;
-
-    U1CSR |= U1CSR_MODE;// USART1 mode = UART
-    U1UCR &= ~U1UCR_FLOW; // disable the flow control;
-    U1UCR &= ~U1UCR_D9; // Even parity
-    U1UCR &= ~U1UCR_BIT9; // 8bits
-    U1UCR &= ~U1UCR_PARITY; // No parity
-    U1UCR &= ~U1UCR_SPB; // 1 stop bit
-    U1UCR |= U1UCR_STOP; // high stop bit
-    U1UCR &= ~U1UCR_START; // Low start bit
-
-    U1GCR &= ~U1GCR_ORDER; // LSB first
-
-    // Set the mode of uart1 as uart
+    uart_init();
 
     // const char tx[] = "Hello world!!!\n";
     // uint16 __xdata tx[8] = {0xA5B3, 0xA687, };
@@ -77,30 +65,47 @@ int main(){
     
 }
 
-void uart1Send(const char *txdata, uint16 len){
-    
-    // clear and pending TX interrupt request 
-    U1CSR &= ~U1CSR_TX_BYTE;
 
-    for(uint16 i = 0; i < len; i++){
-        U1DBUF = txdata[i];
-        while (!(U1CSR & U1CSR_TX_BYTE));
-        U1CSR &= ~U1CSR_TX_BYTE;
-    }
-}
+void uart1_tx_StartDMA( DMA_DESC *dma_config,
+                        uint8 chan_number,
+                        uint8 *tx_buf,
+                        uint16 buf_size){
 
-uint16 uart1Receive(unsigned char *rxdata){
-    // Enable UART1 RX
-    U1CSR |= U1CSR_RE;
-    uint16 len = 0; 
-    while( !(U1CSR&U1CSR_RX_BYTE) );
-    while (1){
-        if(U1CSR & U1CSR_RX_BYTE){
-            *(rxdata + len) = U1DBUF;
-            len++;
-        }else{
-            break;
-        }
+    dma_config->SRCADDRH = (uint16)(tx_buf) >> 8;
+    dma_config->SRCADDRL = (uint16)(tx_buf) & 0x00ff;
+    dma_config->DESTADDRH = ((uint16)(&X_U1DBUF) >> 8 ) & 0x00ff;
+    dma_config->DESTADDRL = (uint16)(&X_U1DBUF) & 0x00ff;
+    dma_config->LENH = (buf_size >> 8) & 0xff;
+    dma_config->LENL = (buf_size) & 0xff;
+
+    // Use fixed length DMA transfer count;
+    dma_config->VLEN = DMA_VLEN_FIXED;
+
+    // Transfer a single word after each DMA trigger;
+    dma_config->WORDSIZE = DMA_WORDSIZE_BYTE;
+    dma_config->TMODE = DMA_TMODE_SINGLE;
+
+    dma_config->TRIG = DMA_TRIG_UTX1;
+
+    dma_config->SRCINC = DMA_SRCINC_1;
+    dma_config->DESTINC = DMA_DESTINC_0;
+
+    dma_config->IRQMASK = DMA_IRQMASK_ENABLE;
+    dma_config->M8 = DMA_M8_USE_8_BITS;
+    dma_config->PRIORITY = DMA_PRI_LOW;
+
+    DMA0CFGH = (uint8)((uint16)(dma_config)>>8);
+    DMA0CFGL = (uint8)((uint16)(dma_config) & 0xff);
+
+    DMAARM |= DMAARM0;
+
+    for(int i = 0; i < 45; i++){
+        asm("NOP");
     }
-    return len;
+
+    EA = 1;
+    DMAIE = 1;
+    DMAIF = 0;
+
+    U1DBUF = tx_buf[0];
 }

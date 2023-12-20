@@ -9,6 +9,9 @@
 #define SCK_Pin     P0_5 
 #define SDI_Pin     P0_3
 
+#define LED_SW_SUM          P2_2
+#define LED_SW_WHITE        P2_1
+
 #define EPD_W21_MOSI_0  SDI_Pin = 0
 #define EPD_W21_MOSI_1  SDI_Pin = 1 
 

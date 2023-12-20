@@ -6,7 +6,7 @@ MCU := --out-fmt-ihx --code-loc 0x0000 --xram-loc 0xf000 \
 		--opt-code-speed -DFLASH_SIZE=0x8000 -DFLASH_PAGESIZE=0x200
 CC := sdcc
 ASM := sdas8051
-INCLUDE_PATH_ =-I${INCLUDE_PATH} -I/usr/share/sdcc/include/
+INCLUDE_PATH_ =-I${INCLUDE_PATH} -I/usr/share/sdcc/include/ -I./cc25xx
 FLAGS := ${MCU} ${INCLUDE_PATH_}
 ROM_SIZE ?= 32768
 
@@ -25,8 +25,8 @@ all: ${TARGET_DIR} ${IHX} ${HEX} ${BINARY}
 vpath %.c ${SRCS}
 
 ${TARGET_DIR}/%.rel: %.c ${HEADER_FILES}
-	@echo Generating object $@ 
-	${CC} -c ${FLAGS} -o $@ $<
+	@echo Generating object : $@ 
+	@${CC} -c ${FLAGS} -o $@ $<
 
 OBJS := ${COBJS}
 
@@ -35,7 +35,7 @@ ${TARGET_DIR}:
 
 # generate the ihx file
 ${IHX}: ${MAKEFILE_LIST} ${OBJS}
-	${CC} -o $@ ${OBJS} ${FLAGS}
+	@${CC} -o $@ ${OBJS} ${FLAGS}
 
 # convent ihx to hex
 ${HEX}: ${IHX}

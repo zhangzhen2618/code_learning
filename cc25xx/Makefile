@@ -11,7 +11,9 @@ ${targets}: cc25xx__% :
 		TARGET_FILE_NAME=$(patsubst cc25xx__%,%,$@) \
 		INCLUDE_PATH=./cc25xx/${patsubst cc25xx__%,%,$@}/include \
 		SRCS=./cc25xx/${patsubst cc25xx__%,%,$@}/src
+	@echo "\n\n***********************  Memory cost **************************"
 	@echo "\nMemory: " & tail -n 5 ${BUILD_DIR_ROOT}/$(subst __,/,$@)/*.mem
+	@echo "\n\n***********************  Memory cost *************************\n\n"
 
 ${clean_targets}: clean_%:
 	@echo "clean target ${patsubst clean_%, %, $@}"
