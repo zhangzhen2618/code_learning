@@ -1,9 +1,8 @@
-# rules for sdcc complie the 8051 default for the STC89C52RC
 # MCU := -mmcs51 --model-large
-MCU := --out-fmt-ihx --code-loc 0x0000 --xram-loc 0xf000 \
+MCU := --mmcs51 --out-fmt-ihx --code-loc 0x0000 --xram-loc 0xf000 \
 	--xram-size 0x1000 --iram-size 0x200  --model-large \
 		--code-size 32768 \
-		--opt-code-speed -DFLASH_SIZE=0x8000 -DFLASH_PAGESIZE=0x200
+		--opt-code-speed -DFLASH_SIZE=0x8000 -DFLASH_PAGESIZE=0x400
 CC := sdcc
 ASM := sdas8051
 INCLUDE_PATH_ =-I${INCLUDE_PATH} -I/usr/share/sdcc/include/ -I./cc25xx

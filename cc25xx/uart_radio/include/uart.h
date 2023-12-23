@@ -6,6 +6,7 @@
 
 typedef signed   short  int16;
 typedef unsigned short  uint16;
+typedef unsigned char   uint8;
 
 // Baudrate = 115200 (U0BAUD.BAUD_M = 34, U0GCR.BAUD_E = 12)
 #define UART_BAUD_M       34
@@ -22,6 +23,6 @@ typedef unsigned short  uint16;
 
 void system_clock_init();
 void uart_init();
-void uart1Send(const char* data, uint16 len);
+void uart1Send(uint8 * data, uint16 len);
 uint16 uart1Receive(unsigned char *buf);
 #endif

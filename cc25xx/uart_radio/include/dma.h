@@ -79,27 +79,3 @@ The macros and structs in this section simplify setup and usage of DMA.
 #define DMA_PRI_GUARANTEED           0x01 // Guaranteed, DMA at least every second try
 #define DMA_PRI_HIGH                 0x02 // High, DMA has priority
 #define DMA_PRI_ABSOLUTE             0x03 // Highest, DMA has priority. Reserved for DMA port access.
-
-
-#pragma bitfields=reversed
-typedef struct {
-   uint8 SRCADDRH;
-   uint8 SRCADDRL;
-   uint8 DESTADDRH;
-   uint8 DESTADDRL;
-   uint8 VLEN      : 3;
-   uint8 LENH      : 5;
-   uint8 LENL      : 8;
-   uint8 WORDSIZE  : 1;
-   uint8 TMODE     : 2;
-   uint8 TRIG      : 5;
-   uint8 SRCINC    : 2;
-   uint8 DESTINC   : 2;
-   uint8 IRQMASK   : 1;
-   uint8 M8        : 1;
-   uint8 PRIORITY  : 2;
-} DMA_DESC;
-#pragma bitfields=default
-
-
-

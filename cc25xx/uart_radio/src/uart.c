@@ -40,13 +40,14 @@ void uart_init(){
     U1GCR &= ~U1GCR_ORDER; // LSB first
 
 }
-void uart1Send(const char *txdata, uint16 len){
+void uart1Send(uint8 *txdata, uint16 len){
     
     // clear and pending TX interrupt request 
     U1CSR &= ~U1CSR_TX_BYTE;
 
     for(uint16 i = 0; i < len; i++){
         U1DBUF = txdata[i];
+        // X_U1DBUF = 0x80;
         while (!(U1CSR & U1CSR_TX_BYTE));
         U1CSR &= ~U1CSR_TX_BYTE;
     }

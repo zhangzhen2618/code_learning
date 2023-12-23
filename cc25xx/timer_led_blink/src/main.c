@@ -1,11 +1,11 @@
 #include "cc2510fx.h"
 #include "ioCCxx10_bitdef.h"
 
-#define LED_SW_SUM          P2_2
-#define LED_SW_WHITE        P2_1
-#define LE_SW_RED           P1_5
-#define LE_SW_BLUE           P1_6
-#define LE_SW_GREEN           P1_7
+#define LED_SW_SUM              P2_2
+#define LED_SW_WHITE            P2_1
+#define LE_SW_RED               P1_5
+#define LE_SW_BLUE              P1_6
+#define LE_SW_GREEN             P1_7
 
 void system_clock_init();
 
