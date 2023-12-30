@@ -1,15 +1,15 @@
 # MCU := -mmcs51 --model-large
-MCU := --mmcs51 --out-fmt-ihx --code-loc 0x0000 --xram-loc 0xf000 \
+MCU := --out-fmt-ihx --code-loc 0x0000 --xram-loc 0xf000 \
 	--xram-size 0x1000 --iram-size 0x200  --model-large \
 		--code-size 32768 \
 		--opt-code-speed -DFLASH_SIZE=0x8000 -DFLASH_PAGESIZE=0x400
 CC := sdcc
 ASM := sdas8051
-INCLUDE_PATH_ =-I${INCLUDE_PATH} -I/usr/share/sdcc/include/ -I./cc25xx
+INCLUDE_PATH_ =-I${INCLUDE_PATH} -I/usr/share/sdcc/include/ -I./cc2510/__common
 FLAGS := ${MCU} ${INCLUDE_PATH_}
 ROM_SIZE ?= 32768
 
-TARGET_DIR := ${CC25XX_BUILD_ROOT_DIR}/${TARGET_FILE_NAME}
+TARGET_DIR := ${CC2510_BUILD_ROOT_DIR}/${TARGET_FILE_NAME}
 
 IHX := ${TARGET_DIR}/${TARGET_FILE_NAME}.ihx
 HEX := ${TARGET_DIR}/${TARGET_FILE_NAME}.hex
