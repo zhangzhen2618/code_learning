@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "picture.h"
+#include "ioCCxx10_bitdef.h"
 
 ////////FUNCTION//////
 void driver_delay_us(unsigned int xus);
@@ -32,18 +33,26 @@ unsigned char HRES,VRES_byte1,VRES_byte2;
 #define BIT6              0x40
 #define BIT7              0x80
 
+// Baudrate = 230400 (U0BAUD.BAUD_M = 34, U0GCR.BAUD_E = 12)
+#define UART_BAUD_M       34
+#define UART_BAUD_E       13
+
 void IO_init() {
-		P0SEL = 0;
-    P1SEL = 0;
-    P2SEL = 0;
-    P0DIR = 0xff;
-    P1DIR = 0xff;
-    P2DIR = 0xff;
+    P0DIR |= BIT0 | BIT1 ;
+    P1DIR |= BIT2;
+    P2DIR |= BIT0;
     P0 |= BIT0;
-    P0DIR &= ~(BIT7);
-    P1DIR &= ~(BIT3);
-    P1 &= ~(BIT0 | BIT6 | BIT5 | BIT4 | BIT7);
     EPD_PWR = 0;
+
+    // SPI_0 connect to epd link
+    P0SEL |= BIT3 | BIT5; // P0.3, P0.5 as alternative
+    // Configure the baudrate as 115200
+    U0BAUD = UART_BAUD_M;
+    U0GCR &= ~U0GCR_BAUD_E;
+    U0GCR |= UART_BAUD_E;
+
+    U0GCR |= U0GCR_CPOL | U0GCR_ORDER;
+
 }
 //Tips//
 /*When the electronic paper is refreshed in full screen, the picture flicker is a normal phenomenon, and the main function is to clear the display afterimage in the previous picture.
@@ -112,22 +121,9 @@ void SPI_Delay(unsigned char xrate)
 
 void SPI_Write(unsigned char value)                                    
 {                                                           
-    unsigned char i;  
-   SPI_Delay(1);
-    for(i=0; i<8; i++)   
-    {
-        EPD_W21_CLK_0;
-       SPI_Delay(1);
-       if(value & 0x80)
-          EPD_W21_MOSI_1;
-        else
-          EPD_W21_MOSI_0;   
-        value = (value << 1); 
-       SPI_Delay(1);
-       driver_delay_us(1);
-        EPD_W21_CLK_1; 
-        SPI_Delay(1);
-    }
+    U0CSR &= ~U0CSR_TX_BYTE;
+    U0DBUF = value;
+    while(!(U0CSR & U0CSR_TX_BYTE));
 }
 
 void EPD_W21_WriteCMD(unsigned char command)
