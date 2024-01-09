@@ -1,3 +1,7 @@
 {
+    "files.associations": {
+        "*.h": "c",
+        "STC8H.H": "cpp"
+    }
 
 }
