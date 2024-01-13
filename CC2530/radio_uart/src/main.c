@@ -39,11 +39,14 @@ void main(){
 
     EA = 1;
 
-	uint8_t tx[] = "hello world!!!!\n";
 	while(1){
-        // uart1Send(tx, sizeof(tx));
-        spi0_write('x');
 
+        // spi0_write(0x00);
+        uint8_t tt = spi0_write(0x00);
+        if (tt != 0x00){
+            spi0_buf[spi0_wptr++] = tt;
+            spi0_wptr &= 0x0f;
+        }
 		if (uart1_rptr != uart1_wptr){
             uart1Send(uart1_buf + uart1_rptr, 1);
             spi0_write(*(uart1_buf + uart1_rptr));
@@ -62,7 +65,7 @@ void main(){
 void spi_0_init(){
     // init SPI0_CS (P1_2) as output
     P1DIR |= BIT2;
-    SPI0_CS = 1; // 
+    SPI0_CS = 0; // 
     // SPI0 P1_5, P1_4, P1_3 Alternative ALT2 
     PERCFG |= PERCFG_U0CFG;
     P1SEL |= BIT5 | BIT4 | BIT3;
@@ -77,20 +80,23 @@ void spi_0_init(){
     spi0_wptr = 0;
     spi0_rptr = 0;
 
-    URX0IE = 1; // receive interrupt enable
+    // URX0IE = 1; // receive interrupt enable
 
 }
 
 uint8_t spi0_write(uint8_t byte){
-    URX0IE = 0; // interrupt disabled
-    SPI0_CS = 0;
-    U0CSR &= ~U0CSR_TX_BYTE;
+    // URX0IE = 0; // interrupt disabled
+    // SPI0_CS = 0;
+    U0CSR &= ~U0CSR_ACTIVE;
     U0DBUF = byte;
-    while (!(U0CSR & U0CSR_TX_BYTE));
-    SPI0_CS = 1;
-    URX0IF = 0; // clear the interrupt flag
-    URX0IE = 1; // enable interrupt
+    while ((U0CSR & U0CSR_ACTIVE));
+    return U0DBUF;
+    // SPI0_CS = 1;
+    // URX0IF = 0; // clear the interrupt flag
+    // URX0IE = 1; // enable interrupt
 }
+
+
 
 void setSystemCLK(){
 	CLKCONCMD &= ~CLKCON_OSC; //设置系统时钟源为32MHz

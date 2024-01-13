@@ -50,13 +50,17 @@ void main(void){
 
     while(1){
         if (rptr != wptr){
-            spi_send(buffer[rptr]);
-            UartSend(buffer[rptr++]);
+            UartSend(buffer[rptr]);
+            spi_send(buffer[rptr++]);
             rptr &= 0x0f;
         }
 
         if (spi_rptr != spi_wptr){
-            UartSend(spi_buf[spi_rptr++]);
+            if (spi_buf[spi_rptr] != 0x00){
+
+                UartSend(spi_buf[spi_rptr]);
+            }
+            spi_rptr++;
             spi_rptr &= 0x0f;
         }
     }
@@ -82,11 +86,11 @@ void UartSend(char dat){
 
 void spi_send(char dat){
     IE2 &= ~0x02;
+    while(!(SPSTAT & 0x80));
+    // SPSTAT |= 0x80;
     SPDAT = dat;
-    SPSTAT = 0xC0;
+    SPSTAT |= 0x80;
     IE2 |= 0x02;
- 
-    
 }
 
 void UartSendStr(char *str){
