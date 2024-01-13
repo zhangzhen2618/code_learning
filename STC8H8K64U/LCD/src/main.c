@@ -13,8 +13,15 @@
 
 int main(){
     
+    P_SW2 |= 0X80; // Enable XFR
+
     P2M0 = 0xff;
     P2M1 = 0x00; 
+
+    P_SW1 |= 0X04;
+    SPCTL |= 0XD3;
+    SPSTAT |= 0XC0;
+
     // P2PU = 0xff;
 	LCD_Init();
 
