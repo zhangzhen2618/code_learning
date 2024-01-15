@@ -1,4 +1,5 @@
 #include "STC8H.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,6 +7,8 @@
 
 #define     MAIN_Fosc       48000000L   //定义主时钟
 #define     BRT             (65536 - (MAIN_Fosc / 115200 + 2) / 4)
+
+
 
 bool busy;
 bool spi_busy;
@@ -15,6 +18,8 @@ char buffer[16];
 unsigned short pulse;
 bool B_Change;
 
+char buf[100];
+uint16_t tmp_pulse = 0;
 
 void UartInit(void);
 void UartSend(char dat);
@@ -38,6 +43,8 @@ void main(void){
     P5M0 = 0x00;
     P5M1 = 0x00;
 
+    P2PU = 0xff;
+
     UartInit();
     PWMA_config();
 
@@ -46,11 +53,11 @@ void main(void){
     EA = 1;
 
     UartSendStr("Hello STCH UART");
-    char buf[100];
+    
     while(1){
         if (B_Change){
             B_Change = 0;
-            uint16_t tmp_pulse = pulse;
+            tmp_pulse = pulse;
             sprintf(buf, "pulse : %u\n", tmp_pulse);
             UartSendStr(buf);
             // UartSend( tmp_pulse / 10000 + '0');
@@ -105,9 +112,14 @@ void PWMA_ISR(void) __interrupt(PWMA_VECTOR) __using(PWMA_VECTOR){
 
     if (PWMA_SR1 & 0x02){
         // pulse++;
-        pulse = PWMA_CNTR;
-        // pulse = PWMA_CNTRL;
-		// pulse = ((uint16_t)PWMA_CNTRH << 8) + (uint16_t)PWMA_CNTRL;	//读取当前编码器计数值
+        // pulse = PWMA_CNTR;
+        // pulse++;
+        // pulse = PWMA_CNTRH;
+        // pulse <<= 8;
+        // pulse += PWMA_CNTRL;
+        // pulse = PWMA_CNTRH;
+
+		pulse = ((uint16_t)PWMA_CNTRH << 8) + (uint16_t)PWMA_CNTRL;	//读取当前编码器计数值
         B_Change = 1;
     }
 
@@ -158,7 +170,7 @@ void PWMA_config(void){
 	
 
 	PWMA_PSCRH = 0;		// 预分频寄存器, 分频 Fck_cnt = Fck_psc/(PSCR[15:0}+1), 边沿对齐PWM频率 = SYSclk/((PSCR+1)*(AAR+1)), 中央对齐PWM频率 = SYSclk/((PSCR+1)*(AAR+1)*2).
-	PWMA_PSCRL = 8192;
+	PWMA_PSCRL = 0;
 	PWMA_ARRH  = 0xff;	// 自动重装载寄存器,  控制PWM周期
 	PWMA_ARRL  = 0xff;
 	PWMA_CNTRH 	= 0;	//清零编码器计数器值

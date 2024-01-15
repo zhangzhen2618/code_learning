@@ -1,7 +1,7 @@
 # MCU := -mmcs51 --model-large
 MCU := --out-fmt-ihx --code-loc 0x0000 \
 	--xram-size 0x2000 --iram-size 0x200  --model-large \
-		--code-size 65536 \
+		--code-size 65536  --stack-auto\
 		--opt-code-speed -DFLASH_SIZE=65536 -DFLASH_PAGESIZE=0x200
 CC := sdcc
 ASM := sdas8051
