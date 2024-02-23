@@ -1,6 +1,6 @@
 # MCU := -mmcs51 --model-large
 MCU := --out-fmt-ihx --xram-loc 0x0000\
-		--xram-size 0x1fff --iram-size 0x200  --model-huge \
+		--xram-size 0x1fff --iram-size 0x200  --model-large \
 		--opt-code-speed -DFLASH_SIZE=0x40000 -DFLASH_PAGESIZE=0x800 \
 		--code-size 32768 --stack-auto
 CC := sdcc
